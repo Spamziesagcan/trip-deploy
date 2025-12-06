@@ -1,0 +1,128 @@
+# Cloudflare Workers Configuration for TripSync Backend
+# Documentation: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+# ============================================================================
+# Application Settings
+# ============================================================================
+
+name = "tripsync-backend"
+main = "src/index.ts"
+compatibility_date = "2025-11-21"
+
+# Enable Node.js compatibility for bcrypt and crypto modules
+compatibility_flags = ["nodejs_compat"]
+
+# ============================================================================
+# Environment Variables (Non-Secret)
+# ============================================================================
+
+[vars]
+# JWT Configuration
+JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = "30"
+
+# API Configuration
+API_VERSION = "2.0.0"
+ENVIRONMENT = "production"
+
+# ============================================================================
+# D1 Database Binding
+# ============================================================================
+# The D1 database stores all application data (users, profiles, pooling, services)
+# Create the database with: wrangler d1 create tripsync-db
+# Then copy the database_id to the configuration below
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tripsync-db"
+database_id = "5e0bb588-f74c-464b-9e7a-172814fd909c"
+
+# ============================================================================
+# Secrets (Set via CLI)
+# ============================================================================
+# Secrets are sensitive values that should NOT be committed to version control
+# Set them using: wrangler secret put <SECRET_NAME>
+#
+# Required secrets:
+# - JWT_SECRET: Zs8vK4q9nT2yP7rL1uV6xA0mQ3wE5hB2cF9jR6sT1o=
+#
+# - OLA_MAPS_API_KEY: VHRZRPOdPVjXTFufZwJmHzprPsuzlLVUy52rfi4B
+#   Example: wrangler secret put OLA_MAPS_API_KEY
+#
+# List all secrets: wrangler secret list
+# Delete a secret: wrangler secret delete <SECRET_NAME>
+
+# ============================================================================
+# Development Environment (Optional)
+# ============================================================================
+# Separate configuration for development/staging
+# Use with: wrangler dev --env development
+
+[env.development]
+name = "tripsync-backend-dev"
+
+[env.development.vars]
+ENVIRONMENT = "development"
+ACCESS_TOKEN_EXPIRE_MINUTES = "60" # Longer token expiry for dev
+
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "tripsync-db-dev"
+database_id = "" # TODO: Create a separate dev database
+
+# ============================================================================
+# Build Configuration
+# ============================================================================
+
+[build]
+command = ""
+
+[build.upload]
+format = "modules"
+main = "./src/index.ts"
+
+# ============================================================================
+# Observability (Optional)
+# ============================================================================
+
+# Tail logs with: wrangler tail
+# View analytics in Cloudflare Dashboard
+
+# ============================================================================
+# Limits & Performance
+# ============================================================================
+# Workers have the following limits:
+# - CPU time: 50ms (free), 50ms-30s (paid)
+# - Memory: 128 MB
+# - Request size: 100 MB
+# - Response size: 100 MB
+# - D1 queries per request: 50 (free), 1000 (paid)
+
+# ============================================================================
+# Future Enhancements
+# ============================================================================
+
+# R2 Bucket for file uploads (profile images, resumes)
+# Uncomment when ready to add file upload functionality:
+#
+# [[r2_buckets]]
+# binding = "UPLOADS"
+# bucket_name = "tripsync-uploads"
+# preview_bucket_name = "tripsync-uploads-preview"
+
+# Durable Objects for WebSocket support (real-time notifications)
+# Uncomment when implementing WebSocket functionality:
+#
+# [[durable_objects.bindings]]
+# name = "POOLING_NOTIFIER"
+# class_name = "PoolingNotifier"
+# script_name = "tripsync-backend"
+
+# KV Namespace for caching (optional)
+# Uncomment if you need caching:
+#
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = ""
+# preview_id = ""
+

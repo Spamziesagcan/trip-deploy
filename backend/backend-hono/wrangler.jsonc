@@ -1,0 +1,26 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "backend-hono",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-11-21",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"vars": {
+		"JWT_ALGORITHM": "HS256",
+		"ACCESS_TOKEN_EXPIRE_MINUTES": "30"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "tripsync-db",
+			"database_id": ""
+		},
+		{
+			"binding": "tripsync_db",
+			"database_name": "tripsync-db",
+			"database_id": "5e0bb588-f74c-464b-9e7a-172814fd909c",
+			"remote": true
+		}
+	]
+}
